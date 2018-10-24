@@ -18,7 +18,7 @@ FOR EACH ROW
 
 DECLARE
 exce EXCEPTION;
-
+-- общая идея: я создал таблицу в которой храню матные слова. Создаю курсор и сравниваю входит ли подстрока(курсор указывающий на слово) в новый комментраий/изменненный 
 CURSOR get_anim IS
 SELECT word FROM CURSE_WORDS;
   anim get_anim%ROWTYPE;
@@ -31,7 +31,28 @@ BEGIN
 
  EXCEPTION
  WHEN exce THEN
-    RAISE_APPLICATION_ERROR(-20111, '���� ���!');
+    RAISE_APPLICATION_ERROR(-20111, '���� ���!');
   
 
 END;
+
+2.1
+create or replace TRIGGER PROJECTTASK_nine_NewTry
+ AFTER  INSERT or UPDATE OF comments
+ ON COMMENTS
+FOR EACH ROW
+WHEN (instr(LOWER(new.comments), 'сука') !=0)
+
+DECLARE
+exce EXCEPTION;
+
+BEGIN
+
+ RAISE EXCE;
+ EXCEPTION
+ WHEN exce THEN
+    RAISE_APPLICATION_ERROR(-20111, 'Есть мат!');
+  
+
+END;
+
