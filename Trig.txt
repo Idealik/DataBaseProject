@@ -1,0 +1,37 @@
+1
+create or replace TRIGGER PROJECTTASK_eight
+ AFTER DELETE
+ ON USERS
+FOR EACH ROW
+
+BEGIN
+  INSERT INTO USERSBAN(ID, NAME,SURNAME,STATUS,GENDER,OLD,RAITING) VALUES (:old.id, :old.name, :old.surname, :old.status, :old.gender, :old.old, :old.raiting);
+END;
+
+
+
+2
+create or replace TRIGGER PROJECTTASK_nine
+ AFTER  INSERT or UPDATE OF comments
+ ON COMMENTS
+FOR EACH ROW
+
+DECLARE
+exce EXCEPTION;
+
+CURSOR get_anim IS
+SELECT word FROM CURSE_WORDS;
+  anim get_anim%ROWTYPE;
+
+BEGIN
+
+  FOR anim IN get_anim LOOP
+   IF instr(:new.comments, anim.word) THEN RAISE exce; END IF;
+  END LOOP;
+
+ EXCEPTION
+ WHEN exce THEN
+    RAISE_APPLICATION_ERROR(-20111, 'Есть мат!');
+  
+
+END;

@@ -1,0 +1,11 @@
+create or replace package ProjOne is
+
+PROCEDURE ProjecntOneTaskThree;
+PROCEDURE ProjecntOneTaskFOUR;
+FUNCTION PROJECTTASK_FIVE(id_user IN  number) RETURN NUMBER ;
+FUNCTION PROJECTTASK_SIX RETURN  User_Comment;
+FUNCTION PROJECTTASK_seven RETURN  NUMBER;
+PROCEDURE ProjecntOneTask_TWO;
+END;
+
+
