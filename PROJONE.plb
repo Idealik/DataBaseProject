@@ -1,4 +1,4 @@
-create or replace package body ProjOne is
+﻿create or replace package body ProjOne is
 
 -------------------------------------
  PROCEDURE ProjecntOneTaskThree AS
@@ -93,36 +93,24 @@ BEGIN
  END;
 
 ------------------
-PROCEDURE ProjecntOneTask_TWO AS
-
+create or replace PROCEDURE ProjecntOneTask_TWO AS
+ 
   CURSOR get_anim IS 
-   SELECT *
-   FROM COMMENTS;
-   
+ SELECT level, id, pid, comments
+ FROM comments
+ START WITH pid is null
+ CONNECT BY PRIOR id = pid;   
  anim get_anim%ROWTYPE;
  
-  CURSOR get_anim_ch IS 
-   SELECT * 
-   FROM COMMENTS;
-   
- anim_child get_anim_ch%ROWTYPE;
- 
 BEGIN
+
   FOR anim IN get_anim LOOP
-  -- если пид null то это родитель и проверяем его детей
-  IF anim.pid is null THEN 
-  -- вывожу основной комменарий, а под ним будут дети
-       dbms_output.put_line( 'Main comm : ' || anim.comments);   
-  -- новый цикл, чтобы пройтись по детям
-  FOR anim_child IN get_anim_ch LOOP
-   --если пид совпадает с id родителя, то вывожу comment with pid
-    IF anim_child.pid = anim.id THEN
-    dbms_output.put_line( 'Answer : ' || anim_child.comments);      
-    END IF;  
+  IF anim.pid is null THEN
+       dbms_output.put_line( 'Main comm : ' || anim.comments  );     
+             ELSE 
+             dbms_output.put_line( 'Answer  : ' || anim.comments  );     
+             END IF;
   END LOOP; 
- END IF;
-       
-  END LOOP;
-  
+   
 END;
 END;
