@@ -1,0 +1,29 @@
+.main-menu input{
+display: block;
+margin:  auto;
+margin-bottom: 10px;
+padding: 20px;
+}
+
+.orderBtn {
+margin: 30px;
+}
+
+.commentAndRate input{
+ display: block;   
+ margin: 15px;
+}
+.chocieOrder{
+    margin: 15px;
+}
+
+.confirmed {
+    margin: 15px;
+}
+.startMove{
+    margin: 15px;
+}
+.regUser input{
+    display: block;   
+    margin: 15px;
+}

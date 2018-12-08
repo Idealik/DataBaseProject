@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Cliente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+</head>
+<body onload="checkCookie()">
+        
+                 <div class="regUser">
+                    <input type="text" id = "reg" placeholder="Name">
+                   <input type="button" value="Зарегестрировать юзера" onclick="regUser()" id="regUser">
+                </div>
+
+        <div class="logInUser">
+                <input type="text" value="" placeholder="Name" >
+                <input type="button" value="Войти" onClick='loadName()' id ="logInUser">
+        </div>
+
+        <div id="hello">
+
+        </div>
+
+    </div>
+</body>
+</html>
+
+<script>
+
+    var myCookies = {};
+
+    function checkCookie(){
+    // var getC = getCookie("login");
+    // alert(getC);
+
+        /*if(getC = ! null){
+            document.location = "client.html";
+        }*/
+    }
+
+    function loadName() {
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                //json
+                openJSON(xmlhttp.responseText);
+            }
+        }
+        xmlhttp.open("GET", 'http://localhost:8080/get', true);
+        xmlhttp.send();
+    }
+        function openJSON(response) {
+            //распарсим json, чтобы работать с ним 
+            var arr = JSON.parse(response);
+
+            for (i = 0; i < arr.length; i++) {
+                //Тут используем взаимодействие с DOM при помощи JS
+                //Создадим новый элемент p
+
+                var el = document.createElement('p');
+                //Присвоим созданному элементу значение name - имя животного
+                el.innerHTML = arr[i].name;
+                //получим элемент, который уже создан (по id = hello)
+                var div = document.getElementById('hello')
+                //добавим к этому элементу дочерний элемент (который создали ранее
+                //и присвоили ему значение
+                div.appendChild(el);
+            }
+        }
+
+        function regUser(){
+            
+            let myName = document.getElementById("reg").value;
+        
+           /* var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET", 'http://localhost:8080/get/' + myName, true);
+            xmlhttp.send();*/
+
+            document.location = "client.html";
+        }
+
+
+</script>
