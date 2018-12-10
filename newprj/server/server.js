@@ -23,7 +23,7 @@ app.route('/get').get((req,res) =>{
     pool.getConnection((err,con) =>{
         if(err) throw err;
 
-        con.query("SELECT * FROM users",(error, result) => {
+        con.query("SELECT * FROM xidealo.orders",(error, result) => {
             if(error ) throw error;
             let str = JSON.stringify(result);
             res.send(str);
@@ -32,20 +32,31 @@ app.route('/get').get((req,res) =>{
     })
 })
 
+app.route('/post/order').post((req,res) =>{ 
 
+   /* let _nameUser = req.body.nameUser;
+    let _startPosition = req.body.startPosition;
+    let _endPosition = req.body.endPosition;
+    let _arriveTime = req.body.arriveTime;*/
 
-app.route('/get/:newname').get((req,res) =>{
+    let _nameUser = "sa";
+    let _startPosition = "sd";
+    let _endPosition = "ss";
+    let _arriveTime = 56;
 
-    let newname = req.params["newname"];
+    let query = 
+    "INSERT INTO xidealo.orders (nameUser, startPosition, endPosition, arriveTime) VALUES ("
+    + _nameUser + ", "
+    + _startPosition + ", "
+    + _endPosition + ", "
+    + _arriveTime + ");";
 
     pool.getConnection((err,con) =>{
         if(err) throw err;
-        con.query("INSERT into users(name) values (?)",[newname],(error, result) => {
+        con.query(query,(error, result) => {
             if(error ) throw error;
-            let str = JSON.stringify(result);
-            res.send(str);
+            res.send(result);
         });
-
         con.release();
     })
 })

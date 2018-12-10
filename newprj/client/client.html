@@ -11,16 +11,37 @@
 <body>
     <div class="client-menu">
         <div class="orderBtn">
-        <input type="button" value="Отправить заказ" onClick=''>
-        </div>
+                <input type="text" placeholder="Ваше имя" id="name">
+                <input type="text" placeholder="откуда" id="startPosition">
+                <input type="text" placeholder="куда" id="endPosition">                
+        <input type="button" value="Отправить заказ" onClick='makeOrder()'>
 
-        <form action="" method="POST">
-                <div class="commentAndRate">
-                        <input type="text" placeholder="поставьте оценку">
-                    <textarea name="comment" id="comment" cols="30" rows="10" placeholder="Оставьте комментарий"></textarea>
-                </div>
-                <input type="submit" value="Поставить оценку и оставить отзыв">
-        </form>
+        </div>
+            <div class="commentAndRate">
+                <input type="text" placeholder="поставьте оценку">
+                <textarea name="comment" id="comment" cols="30" rows="10" placeholder="Оставьте комментарий"></textarea>
+            </div>
+
+            <input type="submit" value="Поставить оценку и оставить отзыв">
     </div>
 </body>
 </html>
+<script>
+
+function makeOrder(){
+            //  var myName = document.getElementById("reg").value;
+ 
+            let nameUser = document.getElementById("name").value;
+            let startPosition = document.getElementById("startPosition").value;
+            let endPosition = document.getElementById("endPosition").value;
+            let arriveTime = 5;
+
+            //Аналогичный код, как в GET
+            var xhr = new XMLHttpRequest();            
+            xhr.open("POST", "http://localhost:8080/post/order", true);
+            //xhr.setRequestHeader("Content-Type", "application/json");        
+            var data = JSON.stringify({"nameUser": nameUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": arriveTime});
+            xhr.send(data);  
+}
+
+</script>

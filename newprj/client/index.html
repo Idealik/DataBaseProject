@@ -29,17 +29,6 @@
 
 <script>
 
-    var myCookies = {};
-
-    function checkCookie(){
-    // var getC = getCookie("login");
-    // alert(getC);
-
-        /*if(getC = ! null){
-            document.location = "client.html";
-        }*/
-    }
-
     function loadName() {
         var xmlhttp = new XMLHttpRequest();
 
@@ -73,13 +62,20 @@
 
         function regUser(){
             
-            let myName = document.getElementById("reg").value;
+            var myName = document.getElementById("reg").value;
         
            /* var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("GET", 'http://localhost:8080/get/' + myName, true);
+            xmlhttp.open("POST", 'http://localhost:8080/get/' + myName, true);
             xmlhttp.send();*/
 
-            document.location = "client.html";
+            //document.location = "client.html";
+            
+            var name = "log";
+            var curCookie = name + "=" + myName ;
+            
+
+            document.cookie = curCookie;
+            alert("Your Cookie : " + document.cookie);
         }
 
 
