@@ -6,20 +6,18 @@
     <title>Taxi driver</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
-    <script src="main.js"></script>
 </head>
-<body>
+<body onload="getOrders()">
     <div class="taxiDriver-menu">
 
         <div class="chocieOrder">
-        <select name="choice" id="">
-            <option>zakaz 1</option>
-            <option>zakaz 2</option>
+        <select name="choice" id="orders">
+
         </select>
         </div>
 
-        <div class="confirmed">
-                <input type="button" value="Клиент прибыл">
+        <div class="confirmed" onclick="acceptOrder()">
+                <input type="button" value="Принять заказ">
         </div>
 
         <div class="startMove">
@@ -29,3 +27,57 @@
     </div>
 </body>
 </html>
+
+
+<script>
+
+
+    function getOrders(){
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                //json
+                createOrders(xmlhttp.responseText);
+            }
+        }
+        xmlhttp.open("GET", 'http://localhost:8080/get/orders', true);
+        xmlhttp.send();
+    }
+
+    function createOrders(response){
+        let arr = JSON.parse(response);
+        
+        let sel = document.getElementById('orders');
+        
+        for(i = 0; i < arr.length; i++){
+
+            if(arr[i].arriveTime <=5){
+                let nwOrder = document.createElement('option');
+                nwOrder.innerHTML = arr[i].nameUser;
+
+                nwOrder.setAttribute('id', 'name');                
+                nwOrder.setAttribute('value', arr[i].id);  
+                
+                sel.appendChild(nwOrder);
+            }
+        }
+    }
+
+function acceptOrder(){
+            // id заказа получить из опшиона, id таксиста по дефолту стоит ( пока не знаю куки), рейтинг сможет добавить пользователь после принятия заказа таксистом
+            // id таксиста статично потому что, если бы было куки я бы брал айди авторизованного таксиста, а так сложно определить, кто он
+            // status -1 отклонен заказ, 0 принят, 1 выполнен (-1 например, если его не берут 30 минут)
+
+            let idOrder = document.getElementById("orders").value;
+            let idTaxiDriver = 1;
+            let status = 0;
+
+            var xhr = new XMLHttpRequest();            
+            xhr.open("POST", "http://localhost:8080/post/acceptOrder", true);
+            xhr.setRequestHeader("Content-Type", "application/json");        
+            var data = JSON.stringify({"idOrder": idOrder, "idTaxiDriver": idTaxiDriver, "status": status});
+            console.log(data);
+            xhr.send(data);  
+}
+</script>

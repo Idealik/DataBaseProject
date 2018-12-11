@@ -19,7 +19,7 @@ app.route('/').get((req,res) =>{
     res.send("hi");
 })
 
-app.route('/get').get((req,res) =>{
+app.route('/get/orders').get((req,res) =>{
     pool.getConnection((err,con) =>{
         if(err) throw err;
 
@@ -38,7 +38,6 @@ app.route('/post/order').post((req,res) =>{
     let startPosition = req.body.startPosition;
     let endPosition = req.body.endPosition;
     let arriveTime = req.body.arriveTime;
-    console.log(nameUser + " name" );
     let query = 
     "INSERT INTO `xidealo`.`orders` (`nameUser`, `startPosition`, `endPosition`, `arriveTime`) VALUES ('" 
     + nameUser + "', '"
@@ -55,6 +54,42 @@ app.route('/post/order').post((req,res) =>{
         });
         con.release();
     })
+})
+
+app.route('/post/acceptOrder').post((req,res) =>{ 
+    
+    let idOrder = req.body.idOrder;
+    let idTaxiDriver = req.body.idTaxiDriver;
+    let status = req.body.status;
+    let query = 
+    "INSERT INTO `xidealo`.`acceptOrders` (`idOrder`, `idTaxiDriver`, `status`) VALUES (" 
+    + idOrder + ", "
+    + idTaxiDriver + ", "
+    + status + ");";
+
+    pool.getConnection((err,con) =>{
+        if(err) throw err;
+        
+        con.query(query,(error, result) => {
+            if(error ) throw error;
+            res.send(result);
+        });
+        con.release();
+    })
+})
+
+app.route('/get/checkMyStatus').get((req,res) =>{ 
+    
+    pool.getConnection((err,con) =>{
+        if(err) throw err;
+
+        con.query("SELECT status, idOrder FROM xidealo.acceptOrders",(error, result) => {
+            if(error ) throw error;
+            res.send(result);
+        });
+        con.release();
+    })
+
 })
 
     //сервер слушает по порту

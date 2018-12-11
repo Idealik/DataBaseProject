@@ -10,26 +10,26 @@
 <body>
     <div class="client-menu">
         <div class="orderBtn">
+
                 <input type="text" placeholder="Ваше имя" id="name">
                 <input type="text" placeholder="откуда" id="startPosition">
                 <input type="text" placeholder="куда" id="endPosition">                
-        <input type="button" value="Отправить заказ" onClick='makeOrder()'>
-
+                <input type="button" value="Отправить заказ" onClick='makeOrder()'>
         </div>
-            <div class="commentAndRate">
-                <input type="text" placeholder="поставьте оценку">
-                <textarea name="comment" id="comment" cols="30" rows="10" placeholder="Оставьте комментарий"></textarea>
-            </div>
 
-            <input type="submit" value="Поставить оценку и оставить отзыв">
+        <div class="checkMyOrder" id="checkMyOrder" >
+
+            <input type="button" value="Узнать статус моего заказа" onClick='getMyStatus()'  >
+            
+        </div>
+
+            
     </div>
 </body>
 </html>
 <script>
 
-function makeOrder(){
-            //  var myName = document.getElementById("reg").value;
- 
+    function makeOrder(){ 
             let nameUser = document.getElementById("name").value;
             let startPosition = document.getElementById("startPosition").value;
             let endPosition = document.getElementById("endPosition").value;
@@ -41,6 +41,44 @@ function makeOrder(){
             var data = JSON.stringify({"nameUser": nameUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": Number(arriveTime)});
             console.log(data);
             xhr.send(data);  
-}
+    }
+
+    function getMyStatus(){
+
+        let xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                //json
+                createOrders(xmlhttp.responseText);
+            }
+        }
+        xmlhttp.open("GET", 'http://localhost:8080/get/checkMyStatus', true);
+        xmlhttp.send();
+
+    }
+    function createOrders(response){
+        //  опять же у меня нет куки, поэтому все буду делать для 1 себя. id = 1
+        // idOrder плохое название, хотя...
+        let myId = 1;
+        let myStatus = -1;
+        let arr = JSON.parse(response);
+        for(i = 0; i<arr.length; i++){
+            if(myId == arr[i].idOrder ){
+                 myStatus = arr[i].status; 
+              }
+        }
+        
+        if(myStatus == 0){
+            let sel = document.getElementById('checkMyOrder');
+
+            let answer = document.createElement('p');
+            answer.innerHTML = "Ваш заказ приняли!";
+
+            answer.setAttribute('value', "Ваш заказ приняли!");  
+            sel.appendChild(answer);
+        }
+
+    }
 
 </script>
