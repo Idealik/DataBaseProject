@@ -6,7 +6,6 @@
     <title>Cliente</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
-    <script src="main.js"></script>
 </head>
 <body>
     <div class="client-menu">
@@ -36,11 +35,11 @@ function makeOrder(){
             let endPosition = document.getElementById("endPosition").value;
             let arriveTime = 5;
 
-            //Аналогичный код, как в GET
             var xhr = new XMLHttpRequest();            
             xhr.open("POST", "http://localhost:8080/post/order", true);
-            //xhr.setRequestHeader("Content-Type", "application/json");        
-            var data = JSON.stringify({"nameUser": nameUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": arriveTime});
+            xhr.setRequestHeader("Content-Type", "application/json");        
+            var data = JSON.stringify({"nameUser": nameUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": Number(arriveTime)});
+            console.log(data);
             xhr.send(data);  
 }
 

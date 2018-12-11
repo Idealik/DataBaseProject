@@ -33,26 +33,22 @@ app.route('/get').get((req,res) =>{
 })
 
 app.route('/post/order').post((req,res) =>{ 
-
-   /* let _nameUser = req.body.nameUser;
-    let _startPosition = req.body.startPosition;
-    let _endPosition = req.body.endPosition;
-    let _arriveTime = req.body.arriveTime;*/
-
-    let _nameUser = "sa";
-    let _startPosition = "sd";
-    let _endPosition = "ss";
-    let _arriveTime = 56;
-
+    
+    let nameUser = req.body.nameUser;
+    let startPosition = req.body.startPosition;
+    let endPosition = req.body.endPosition;
+    let arriveTime = req.body.arriveTime;
+    console.log(nameUser + " name" );
     let query = 
-    "INSERT INTO xidealo.orders (nameUser, startPosition, endPosition, arriveTime) VALUES ("
-    + _nameUser + ", "
-    + _startPosition + ", "
-    + _endPosition + ", "
-    + _arriveTime + ");";
+    "INSERT INTO `xidealo`.`orders` (`nameUser`, `startPosition`, `endPosition`, `arriveTime`) VALUES ('" 
+    + nameUser + "', '"
+    + startPosition + "', '"
+    + endPosition + "', "
+    + arriveTime + ");";
 
     pool.getConnection((err,con) =>{
         if(err) throw err;
+        
         con.query(query,(error, result) => {
             if(error ) throw error;
             res.send(result);
