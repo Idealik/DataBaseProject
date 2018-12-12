@@ -11,14 +11,13 @@
     <div class="client-menu">
         <div class="orderBtn">
 
-                <input type="text" placeholder="Ваше имя" id="name">
+                <input type="text" placeholder="Ваш телефон" id="phone">
                 <input type="text" placeholder="откуда" id="startPosition">
                 <input type="text" placeholder="куда" id="endPosition">                
                 <input type="button" value="Отправить заказ" onClick='makeOrder()'>
         </div>
 
         <div class="checkMyOrder" id="checkMyOrder" >
-
             <input type="button" value="Узнать статус моего заказа" onClick='getMyStatus()'  >
             
         </div>
@@ -30,17 +29,19 @@
 <script>
 
     function makeOrder(){ 
-            let nameUser = document.getElementById("name").value;
+            let phoneUser = document.getElementById("phone").value;
             let startPosition = document.getElementById("startPosition").value;
             let endPosition = document.getElementById("endPosition").value;
             let arriveTime = 5;
 
-            var xhr = new XMLHttpRequest();            
-            xhr.open("POST", "http://localhost:8080/post/order", true);
-            xhr.setRequestHeader("Content-Type", "application/json");        
-            var data = JSON.stringify({"nameUser": nameUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": Number(arriveTime)});
-            console.log(data);
-            xhr.send(data);  
+            if(isFreePhone(phoneUser)){ //!!!
+                var xhr = new XMLHttpRequest();            
+                xhr.open("POST", "http://localhost:8080/post/order", true);
+                xhr.setRequestHeader("Content-Type", "application/json");        
+                var data = JSON.stringify({"phoneUser": phoneUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": Number(arriveTime)});
+                console.log(data);
+                xhr.send(data);  
+            }
     }
 
     function getMyStatus(){
@@ -50,21 +51,20 @@
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 //json
-                createOrders(xmlhttp.responseText);
+                checkMyStatus(xmlhttp.responseText);
             }
         }
         xmlhttp.open("GET", 'http://localhost:8080/get/checkMyStatus', true);
         xmlhttp.send();
 
     }
-    function createOrders(response){
-        //  опять же у меня нет куки, поэтому все буду делать для 1 себя. id = 1
-        // idOrder плохое название, хотя...
-        let myId = 1;
+    function checkMyStatus(response){
+        //  опять же у меня нет куки, поэтому все буду делать для 1 себя. id = 123
+        let myId = document.getElementById("phone").value;
         let myStatus = -1;
         let arr = JSON.parse(response);
         for(i = 0; i<arr.length; i++){
-            if(myId == arr[i].idOrder ){
+            if(myId == arr[i].idOrder ){ // тут idOrder это и есть номер юзера, стоит поменять
                  myStatus = arr[i].status; 
               }
         }
@@ -78,7 +78,31 @@
             answer.setAttribute('value', "Ваш заказ приняли!");  
             sel.appendChild(answer);
         }
-
     }
 
+    //могу получить все из таблицы заказов 
+    function getOrders(){
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                //json
+                var allAboutOrders = JSON.parse(xmlhttp.responseText); 
+                return allAboutOrders;
+            }
+        }
+        xmlhttp.open("GET", 'http://localhost:8080/get/orders', true);
+        xmlhttp.send();
+    }
+    function isFreePhone(phoneUser){
+            let myOrders = getOrders();
+
+            for(i = 0; i<allAboutOrders.length; i++){
+                if(phoneUser == allAboutOrders[i].phoneUser){
+                        alert(allAboutOrders[i].phoneUser);
+                        return false;
+                        }
+                        alert(allAboutOrders[i].phoneUser);
+                }
+        return true; 
+    }
 </script>

@@ -16,12 +16,12 @@
         </select>
         </div>
 
-        <div class="confirmed" onclick="acceptOrder()">
-                <input type="button" value="Принять заказ">
+        <div class="confirmed" >
+                <input type="button" value="Принять заказ" onclick="acceptOrder()">
         </div>
 
         <div class="startMove">
-                <input type="button" value="Начали движение">
+                <input type="button" value="Начали движение" onclick="startMove()">
         </div>
       
     </div>
@@ -30,8 +30,6 @@
 
 
 <script>
-
-
     function getOrders(){
         var xmlhttp = new XMLHttpRequest();
 
@@ -54,10 +52,10 @@
 
             if(arr[i].arriveTime <=5){
                 let nwOrder = document.createElement('option');
-                nwOrder.innerHTML = arr[i].nameUser;
+                nwOrder.innerHTML = arr[i].phoneUser; // можно поменять на nameUser
 
                 nwOrder.setAttribute('id', 'name');                
-                nwOrder.setAttribute('value', arr[i].id);  
+                nwOrder.setAttribute('value', arr[i].phoneUser);  
                 
                 sel.appendChild(nwOrder);
             }
@@ -67,7 +65,7 @@
 function acceptOrder(){
             // id заказа получить из опшиона, id таксиста по дефолту стоит ( пока не знаю куки), рейтинг сможет добавить пользователь после принятия заказа таксистом
             // id таксиста статично потому что, если бы было куки я бы брал айди авторизованного таксиста, а так сложно определить, кто он
-            // status -1 отклонен заказ, 0 принят, 1 выполнен (-1 например, если его не берут 30 минут)
+            // status -1 отклонен заказ, 0 принят,  1 - начал движение с клиентом, 2 выполнен (-1 например, если его не берут 30 минут),
 
             let idOrder = document.getElementById("orders").value;
             let idTaxiDriver = 1;
@@ -79,5 +77,18 @@ function acceptOrder(){
             var data = JSON.stringify({"idOrder": idOrder, "idTaxiDriver": idTaxiDriver, "status": status});
             console.log(data);
             xhr.send(data);  
+}
+
+
+function startMove(){
+
+        let status = 2; // статус 2 - в движении
+
+        let xhr = new XMLHttpRequest();
+            //Выполняется уже PUT запрос
+        xhr.open("PUT", "http://localhost:8080/put/startMove", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        let data = JSON.stringify({"status": status});
+        xhr.send(data);
 }
 </script>

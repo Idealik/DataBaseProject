@@ -34,13 +34,13 @@ app.route('/get/orders').get((req,res) =>{
 
 app.route('/post/order').post((req,res) =>{ 
     
-    let nameUser = req.body.nameUser;
+    let phoneUser = req.body.phoneUser;
     let startPosition = req.body.startPosition;
     let endPosition = req.body.endPosition;
     let arriveTime = req.body.arriveTime;
     let query = 
-    "INSERT INTO `xidealo`.`orders` (`nameUser`, `startPosition`, `endPosition`, `arriveTime`) VALUES ('" 
-    + nameUser + "', '"
+    "INSERT INTO `xidealo`.`orders` (`phoneUser`, `startPosition`, `endPosition`, `arriveTime`) VALUES (" 
+    + phoneUser + ", '"
     + startPosition + "', '"
     + endPosition + "', "
     + arriveTime + ");";
@@ -66,6 +66,24 @@ app.route('/post/acceptOrder').post((req,res) =>{
     + idOrder + ", "
     + idTaxiDriver + ", "
     + status + ");";
+
+    pool.getConnection((err,con) =>{
+        if(err) throw err;
+        
+        con.query(query,(error, result) => {
+            if(error ) throw error;
+            res.send(result);
+        });
+        con.release();
+    })
+})
+
+app.route('/put/startMove').put((req,res) =>{ 
+    
+   let status = req.body.status;
+   let id  = req.body.id;
+   // где стату равен 0 и такое же айди таксита, получается что запрос в обработке и не будет путаницы
+   let query = "UPDATE `xidealo`.`acceptOrders` SET `status` = '"+ status +"' WHERE (`id` = '3') and (`idTaxiDriver` = '1')";
 
     pool.getConnection((err,con) =>{
         if(err) throw err;
