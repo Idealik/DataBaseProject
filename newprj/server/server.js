@@ -15,10 +15,6 @@ var pool = require("./config");
 //req - параметр от клиента, res - ответ сервера
 // => сокращение для function
 
-app.route("/").get((req, res) => {
-  res.send("hi");
-});
-
 app.route("/get/orders").get((req, res) => {
   pool.getConnection((err, con) => {
     if (err) throw err;
@@ -29,7 +25,19 @@ app.route("/get/orders").get((req, res) => {
       res.send(str);
     });
     con.release();
-    //con.query("SELECT * FROM ?? where id = ? or name = ?", [table, id, name] ,(error, result) => {
+  });
+});
+
+app.route("/get/taxiDrivers").get((req, res) => {
+  pool.getConnection((err, con) => {
+    if (err) throw err;
+
+    con.query("SELECT * FROM xidealo.taxi_drivers", (error, result) => {
+      if (error) throw error;
+      let str = JSON.stringify(result);
+      res.send(str);
+    });
+    con.release();
   });
 });
 

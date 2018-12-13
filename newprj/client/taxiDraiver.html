@@ -40,9 +40,7 @@
   }
 
   function createOrders(response) {
-    let arr = JSON.parse(response);
-
-    let sel = document.getElementById("orders");
+    let arr = document.getElementById("orders");
 
     for (i = 0; i < arr.length; i++) {
       if (arr[i].arriveTime <= 5) {
@@ -86,4 +84,6 @@
     let data = JSON.stringify({ status: status, idTaxiDriver: idTaxiDriver });
     xhr.send(data);
   }
+
+  // добавить кнопку приехали, где рандомить время
 </script>
