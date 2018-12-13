@@ -10,7 +10,6 @@
 <body>
     <div class="client-menu">
         <div class="orderBtn">
-
                 <input type="text" placeholder="Ваш телефон" id="phone">
                 <input type="text" placeholder="откуда" id="startPosition">
                 <input type="text" placeholder="куда" id="endPosition">                
@@ -33,21 +32,18 @@
             let startPosition = document.getElementById("startPosition").value;
             let endPosition = document.getElementById("endPosition").value;
             let arriveTime = 5;
-
-            if(isFreePhone(phoneUser)){ //!!!
+          
                 var xhr = new XMLHttpRequest();            
                 xhr.open("POST", "http://localhost:8080/post/order", true);
                 xhr.setRequestHeader("Content-Type", "application/json");        
                 var data = JSON.stringify({"phoneUser": phoneUser, "startPosition": startPosition, "endPosition" : endPosition, "arriveTime": Number(arriveTime)});
                 console.log(data);
                 xhr.send(data);  
-            }
+            
     }
 
     function getMyStatus(){
-
         let xmlhttp = new XMLHttpRequest();
-
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 //json
@@ -56,8 +52,8 @@
         }
         xmlhttp.open("GET", 'http://localhost:8080/get/checkMyStatus', true);
         xmlhttp.send();
-
     }
+    
     function checkMyStatus(response){
         //  опять же у меня нет куки, поэтому все буду делать для 1 себя. id = 123
         let myId = document.getElementById("phone").value;
@@ -81,28 +77,24 @@
     }
 
     //могу получить все из таблицы заказов 
-    function getOrders(){
+    function isFreePhone(phoneUser){
         var xmlhttp = new XMLHttpRequest();
+        let allAboutOrders;
         xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 //json
-                var allAboutOrders = JSON.parse(xmlhttp.responseText); 
-                return allAboutOrders;
+                allAboutOrders = JSON.parse(xmlhttp.responseText); 
+                for(i = 0; i<allAboutOrders.length; i++){
+                    if(phoneUser == allAboutOrders[i].phoneUser){
+                        return false;
+                    }
+                }
+                return true;
             }
         }
         xmlhttp.open("GET", 'http://localhost:8080/get/orders', true);
         xmlhttp.send();
     }
-    function isFreePhone(phoneUser){
-            let myOrders = getOrders();
 
-            for(i = 0; i<allAboutOrders.length; i++){
-                if(phoneUser == allAboutOrders[i].phoneUser){
-                        alert(allAboutOrders[i].phoneUser);
-                        return false;
-                        }
-                        alert(allAboutOrders[i].phoneUser);
-                }
-        return true; 
-    }
+
 </script>
