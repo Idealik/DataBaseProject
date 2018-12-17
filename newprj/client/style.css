@@ -5,23 +5,25 @@ margin-bottom: 10px;
 padding: 20px;
 }
 
-.orderBtn {
-margin: 30px;
+.choiceOrder {
+margin-top: 15px;
 }
-
+.choiceOrder select{
+    width: 200px;
+}
+input{
+    width: 200px;
+}
 .commentAndRate input{
  display: block;   
  margin: 15px;
 }
-.chocieOrder{
-    margin: 15px;
-}
 
-.confirmed {
-    margin: 15px;
+.accept {
+    margin-top: 15px;
 }
 .startMove{
-    margin: 15px;
+    margin-top: 15px;
 }
 .regUser input{
     display: block;   

@@ -19,7 +19,9 @@ app.route("/get/orders").get((req, res) => {
   pool.getConnection((err, con) => {
     if (err) throw err;
 
-    con.query("SELECT * FROM xidealo.orders", (error, result) => {
+    con.query(
+      "SELECT * FROM xidealo.orders",
+      (error, result) => {
       if (error) throw error;
       let str = JSON.stringify(result);
       res.send(str);
@@ -27,12 +29,30 @@ app.route("/get/orders").get((req, res) => {
     con.release();
   });
 });
+
+
+/*app.route("/get/ordersWithBusyStatus").get((req, res) => {
+  pool.getConnection((err, con) => {
+    if (err) throw err;
+
+    con.query(
+      "SELECT * FROM orders, acceptOrders WHERE phoneUser=idOrder and (status = 0 or status = 1)", // у этих пользователей уже принят заказ 
+      (error, result) => {
+      if (error) throw error;
+      let str = JSON.stringify(result);
+      res.send(str);
+    });
+    con.release();
+  });
+});*/
 
 app.route("/get/taxiDrivers").get((req, res) => {
   pool.getConnection((err, con) => {
     if (err) throw err;
 
-    con.query("SELECT * FROM xidealo.taxi_drivers", (error, result) => {
+    con.query(
+      "SELECT * FROM xidealo.taxi_drivers",
+       (error, result) => {
       if (error) throw error;
       let str = JSON.stringify(result);
       res.send(str);
@@ -40,6 +60,38 @@ app.route("/get/taxiDrivers").get((req, res) => {
     con.release();
   });
 });
+
+
+app.route("/get/checkMyStatus").get((req, res) => {
+  pool.getConnection((err, con) => {
+    if (err) throw err;
+
+    con.query(
+      "SELECT status, idOrder, idTaxiDriver FROM xidealo.acceptOrders",
+      (error, result) => {
+        if (error) throw error;
+        res.send(result);
+      }
+    );
+    con.release();
+  });
+});
+
+app.route("/get/acceptOrders").get((req, res) => {
+  pool.getConnection((err, con) => {
+    if (err) throw err;
+
+    con.query(
+      "SELECT * FROM xidealo.acceptOrders",
+      (error, result) => {
+        if (error) throw error;
+        res.send(result);
+      }
+    );
+    con.release();
+  });
+});
+
 
 app.route("/post/order").post((req, res) => {
   let phoneUser = req.body.phoneUser;
@@ -65,11 +117,12 @@ app.route("/post/acceptOrder").post((req, res) => {
   let idOrder = req.body.idOrder;
   let idTaxiDriver = req.body.idTaxiDriver;
   let status = req.body.status;
+  let rating = req.body.status;
   pool.getConnection((err, con) => {
     if (err) throw err;
     con.query(
-      "INSERT INTO `xidealo`.`acceptOrders` (`idOrder`, `idTaxiDriver`, `status`) VALUES (?, ?, ?)",
-      [idOrder, idTaxiDriver, status],
+      "INSERT INTO `xidealo`.`acceptOrders` (`idOrder`, `idTaxiDriver`, `status`, `rating`) VALUES (?, ?, ?,?)",
+      [idOrder, idTaxiDriver, status,rating],
       (error, result) => {
         if (error) throw error;
         res.send(result);
@@ -97,12 +150,49 @@ app.route("/put/startMove").put((req, res) => {
   });
 });
 
-app.route("/get/checkMyStatus").get((req, res) => {
+app.route("/put/arrived").put((req, res) => {
+  let status = req.body.status;
+  let idTaxiDriver = req.body.idTaxiDriver;
+  // где стату равен 0 и такое же айди таксита, получается что запрос в обработке и не будет путаницы
   pool.getConnection((err, con) => {
     if (err) throw err;
-
     con.query(
-      "SELECT status, idOrder FROM xidealo.acceptOrders",
+      "UPDATE `xidealo`.`acceptOrders` SET `status` = ? WHERE `status` = '1' and (`idTaxiDriver` = ?)",
+      [status, idTaxiDriver],
+      (error, result) => {
+        if (error) throw error;
+        res.send(result);
+      }
+    );
+    con.release();
+  });
+});
+
+app.route("/put/rateIt").put((req, res) => {
+  let rating = req.body.rating;
+  let idOrder = req.body.idOrder;
+  // где стату равен 0 и такое же айди таксита, получается что запрос в обработке и не будет путаницы
+  pool.getConnection((err, con) => {
+    if (err) throw err;
+    con.query(
+      "UPDATE `xidealo`.`acceptOrders` SET `rating` = ? WHERE `status` = '1' and (`idOrder` = ?)",
+      [rating, idOrder],
+      (error, result) => {
+        if (error) throw error;
+        res.send(result);
+      }
+    );
+    con.release();
+  });
+});
+
+
+app.route("/delete/:deleteOrder").delete((req, res) => {
+  let phoneUser = req.params["deleteOrder"];
+  pool.getConnection((err, con) => {
+    if (err) throw err;
+    con.query(
+      "DELETE FROM `xidealo`.`orders` WHERE (`phoneUser` = ?)",[phoneUser],
       (error, result) => {
         if (error) throw error;
         res.send(result);

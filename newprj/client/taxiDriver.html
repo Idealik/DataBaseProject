@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Taxi driver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+  </head>
+  <body>
+    <div class="taxiDriver-menu">
+        <div class="authorization">
+            <input type="text"  placeholder="id"  id ="myId"/>
+            <input type="button" value="Войти" onClick="authorizUser()" id="logInUser" />
+          </div>
+      <div class="choiceOrder" id ="choiceOrder">
+        <select name="choice" id="orders"> </select>        
+      </div>
+
+      <div class="accept" id="accept">
+        <input type="button" id="acceptBtn" value="Принять заказ" onclick="acceptOrder() "disabled />
+
+      </div>
+
+      <div class="startMove" id="startMove">
+        <input type="button" id="startBtn" value="Начали движение" onclick="startMove()" disabled />
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  // status -1 не принят заказ, 0 принят,  1 - начал движение с клиентом, 2 выполнен.
+ 
+  var idTaxiDriver;
+
+  function authorizUser() {
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        //json
+        checkID(xmlhttp.responseText);
+      }
+    };
+    xmlhttp.open("GET", "http://localhost:8080/get/taxiDrivers", true);
+    xmlhttp.send();
+  }
+
+  function checkID(response) {
+    let arr = JSON.parse(response);
+    let myId = document.getElementById("myId").value;
+    let myIdTaxiDriver;
+    for (i = 0; i < arr.length; i++) {
+      if (myId == arr[i].id) {
+        myIdTaxiDriver = arr[i].id; 
+    //    alert("Вы зашли под айди " + arr[i].id);
+        console.log(arr[i].id);
+    
+        break;
+      }
+      else {
+        // исключительная ситуация, если у нас нету таких таксистов.
+        myIdTaxiDriver = -1;
+      }
+    }
+    //авторизовался и делает проверку, есть ли у него принятый заказ или он может принять любой
+
+    //проверяем есть ли у него заказ в таблице обрабатываемых
+   // alert(myIdTaxiDriver);
+    idTaxiDriver = myIdTaxiDriver; // присваиваю глобаль, как если бы брал из куки
+    if(myIdTaxiDriver!=(-1)) getMyStatus(myIdTaxiDriver);
+    
+  }
+
+  function getMyStatus(myIdTaxiDriver){
+   // alert("hi get");
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        //json
+        checkMyStatus(xmlhttp.responseText,myIdTaxiDriver);
+      }
+    };
+    xmlhttp.open("GET", "http://localhost:8080/get/checkMyStatus", true);
+    xmlhttp.send();
+  }
+
+  function checkMyStatus(response,myIdTaxiDriver) {
+   //alert("hi check");
+
+    let myId = myIdTaxiDriver;
+    let clientId;
+    let myStatus = -1;
+    let arr = JSON.parse(response);
+    for (i = 0; i < arr.length; i++) {
+      if (myId == arr[i].idTaxiDriver) {
+        // тут idOrder это и есть номер юзера
+        // вернет последний статус в таблице с этим таксистом
+        // До этого все заказы будут выполнены, потмоу что, пока у него не выполнен заказ, я не даю ему возможность взять новый 
+        myStatus = arr[i].status;
+        clientId = arr[i].idOrder;
+      }
+    }
+    // в зависимости от статуса я могу выполнять разные методы
+    // если статус не равен -1 или 2, значит у таксиста нет действующих заказов и он может взять новый, можно вызвать метод getOrders 
+    // если статус 0 или 1, можно вывести информацию о действующем заказе.
+    if(myStatus == (-1) || myStatus == 2){
+
+      document.getElementById("acceptBtn").disabled = false; 
+
+      getOrders();// or getOrders(); 
+    }
+
+    let div = document.getElementById("choiceOrder");
+    let sel;
+    let answer;
+    let divBtnAc;
+    let divBtnSt;
+
+    switch(myStatus){
+       // кнопка принять заказ
+      case 0:
+        // удаление селекта с выбором заказов (Косметика, там бы все равно не подругзились заказы)
+        sel = document.getElementById("orders");
+        div.removeChild(sel);
+        answer = document.createElement("p");
+        answer.innerHTML = "Вы приняли заказ клиента id = " + clientId;
+        div.appendChild(answer);
+
+        //удаление кнопок "начать движение" и "принять заказ", а это уже важно, чтобы таксист не сломал бд
+        divBtnAc = document.getElementById("accept");
+        divBtnAc.remove();
+
+        document.getElementById("startBtn").disabled = false;
+        break;
+        // кнопка начать движение
+      case 1: 
+        sel = document.getElementById("orders");
+        div.removeChild(sel);
+
+        answer = document.createElement("p");
+        answer.innerHTML = "Вы везете с клиентом id = " + clientId;
+
+        divBtnAc = document.getElementById("accept");
+        divBtnAc.remove();
+
+        arrivedBtn = document.createElement("input"); 
+        arrivedBtn.setAttribute('type', 'button');   
+        arrivedBtn.setAttribute('name', 'Приехали');   
+        arrivedBtn.setAttribute('value', 'Приехали');
+        arrivedBtn.onclick = arrivedGetOrd;
+        div.appendChild(arrivedBtn);
+
+        divBtnSt = document.getElementById("startMove");
+        divBtnSt.remove();
+        break;
+
+        default:
+        break;
+    }
+}
+
+  function getOrders() {
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        createOrders(xmlhttp.responseText);
+      }
+    };
+    xmlhttp.open("GET", "http://localhost:8080/get/orders", true);
+    xmlhttp.send();
+  }
+
+  function createOrders(responseOrders) {
+
+    let sel = document.getElementById("orders");
+    let arrOrders = JSON.parse(responseOrders);
+
+      for (i = 0; i < arrOrders.length; i++) {
+        let nwOrder = document.createElement("option");
+        nwOrder.innerHTML = arrOrders[i].phoneUser; // можно поменять на nameUser
+
+        nwOrder.setAttribute("value", arrOrders[i].phoneUser);
+
+        sel.appendChild(nwOrder);
+      }
+    }
+  
+
+  function acceptOrder() {
+    let idOrder = document.getElementById("orders").value;
+    let status = 0;
+    let rating = 0;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:8080/post/acceptOrder", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    var data = JSON.stringify({
+      idOrder: idOrder,
+      idTaxiDriver: idTaxiDriver,
+      status: status,
+      rating: rating
+    });
+    console.log(data);
+    xhr.send(data);
+    document.getElementById("startBtn").disabled = false;
+
+    deleteAcceptOrder();
+  }
+  //Как кто-то принял заказ, удаляем его из таблицы заказов, есть свои минусы, но есть и плюсы
+  function deleteAcceptOrder(){
+
+    let idOrder = document.getElementById("orders").value;
+    var url = "http://localhost:8080/delete/";
+    var xhr = new XMLHttpRequest();
+    xhr.open("DELETE", url+idOrder, true);
+    xhr.send(null);
+
+  }
+  function startMove() {
+
+    let status = 1; // статус 1 - в движении
+    let xhr = new XMLHttpRequest();
+    //Выполняется уже PUT запрос
+    xhr.open("PUT", "http://localhost:8080/put/startMove", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    let data = JSON.stringify({ status: status, idTaxiDriver: idTaxiDriver });
+    xhr.send(data);
+    createGo();
+  }
+
+  function arrivedGetOrd() {
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        arrived(xmlhttp.responseText);
+      }
+    };
+    xmlhttp.open("GET", "http://localhost:8080/get/acceptOrders", true);
+    xmlhttp.send();
+  }
+
+  function arrived(responseOrders){
+
+    let arrOrders = JSON.parse(responseOrders);
+    
+    let isRate;
+    for(i=0; i <arrOrders.length; i++){
+      alert(arrOrders[i].idTaxiDriver + " " +arrOrders[i].status + " "+ arrOrders[i].rating  )
+      isRate = (arrOrders[i].idTaxiDriver == idTaxiDriver) && (arrOrders[i].status==1) && (arrOrders[i].rating!=0)
+    }
+    if(isRate){
+      let status = 2; // статус 2 - приехали
+      let xhr = new XMLHttpRequest();
+      //Выполняется уже PUT запрос
+      xhr.open("PUT", "http://localhost:8080/put/arrived", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      let data = JSON.stringify({ status: status, idTaxiDriver: idTaxiDriver });
+      console.log(data);
+      xhr.send(data);
+    }else{
+      alert("Пользователь еще не поставил оценку и не заплатил");
+    }
+    
+  }
+
+  function createGo(){
+    let div = document.getElementById("choiceOrder");
+        let arrivedBtn = document.createElement("input"); 
+        arrivedBtn.setAttribute('type', 'button');   
+        arrivedBtn.setAttribute('name', 'Приехали');   
+        arrivedBtn.setAttribute('value', 'Приехали');
+        arrivedBtn.onclick = arrived;
+        div.appendChild(arrivedBtn);
+  }
+</script>
